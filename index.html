@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ask Trace AI – Paste Logs, Get Answers</title>
+  <meta name="description" content="Paste your logs and let AI analyze errors, root causes, and insights instantly." />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7364479909106399"
+     crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #1d3b5f;  /* 修改背景色为浅色深蓝 */
+      --card: #2a405c;
+      --primary: #4f7cff;
+      --text: #e6e8ee;
+      --muted: #9aa3b2;
+      --border: #1f2a44;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 48px;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 0.3px;
+    }
+
+    .badge {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(79,124,255,0.15);
+      color: var(--primary);
+      border: 1px solid rgba(79,124,255,0.3);
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .hero h1 {
+      font-size: 40px;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)), var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+    }
+
+    .textarea {
+      width: 100%;
+      min-height: 220px;
+      resize: vertical;
+      background: #0d1426;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .textarea::placeholder {
+      color: #6f7890;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    button {
+      background: linear-gradient(180deg, #5a85ff, #3f6bff);
+      border: none;
+      color: white;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(79,124,255,0.35);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .result {
+      margin-top: 28px;
+      display: none;
+    }
+
+    .result pre {
+      white-space: pre-wrap;
+      background: #0d1426;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    footer {
+      margin-top: 60px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    
+    .language-switcher {
+      font-size: 14px;
+      cursor: pointer;
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">Ask Trace AI</div>
+      <div class="badge">No Login • Free Try</div>
+      <div class="language-switcher" onclick="toggleLanguage()">切换语言</div>
+    </header>
+
+    <section class="hero">
+      <h1 id="hero-title">Paste Your Logs.<br />Ask AI What’s Wrong.</h1>
+      <p id="hero-desc">Instant error analysis, root cause hints, and optimization suggestions.</p>
+    </section>
+
+    <section class="card">
+      <textarea id="logInput" class="textarea" placeholder="
+      	Paste your application logs here...
+        Example:
+        2025-03-21 10:21:33 ERROR NullPointerException at OrderService.java:42 
+      	2025-03-21 10:21:33 INFO  RequestId=abc-123"></textarea>
+      <div class="actions">
+        <div class="hint">Logs are analyzed by AI. Do not paste secrets.</div>
+        <button id="submitBtn">Analyze Logs</button>
+      </div>
+
+      <div id="result" class="result">
+        <h3>AI Analysis</h3>
+        <pre id="resultText"></pre>
+      </div>
+    </section>
+
+    <footer>
+      © 2025 Ask Trace AI · AI-powered log understanding
+    </footer>
+  </div>
+
+  <script>
+    const btn = document.getElementById('submitBtn');
+    const input = document.getElementById('logInput');
+    const resultBox = document.getElementById('result');
+    const resultText = document.getElementById('resultText');
+
+    const texts = {
+      en: {
+        heroTitle: "Paste Your Logs.\nAsk AI What’s Wrong.",
+        heroDesc: "Instant error analysis, root cause hints, and optimization suggestions.",
+        analyzeButton: "Analyze Logs",
+        resultTitle: "AI Analysis",
+        placeholder: "Paste your application logs here...Example:\n2025-03-21 10:21:33 ERROR NullPointerException at OrderService.java:42\n2025-03-21 10:21:33 INFO  RequestId=abc-123",
+      },
+      zh: {
+        heroTitle: "粘贴你的日志。\n询问 AI 错误原因。",
+        heroDesc: "即时错误分析、根本原因提示和优化建议。",
+        analyzeButton: "分析日志",
+        resultTitle: "AI 分析结果",
+        placeholder: "在这里粘贴你的日志...\n\n示例:\n2025-03-21 10:21:33 错误 NullPointerException at OrderService.java:42\n2025-03-21 10:21:33 信息 RequestId=abc-123",
+      }
+    };
+
+    let currentLanguage = 'en';
+
+    function toggleLanguage() {
+      currentLanguage = currentLanguage === 'en' ? 'zh' : 'en';
+      document.getElementById('hero-title').innerText = texts[currentLanguage].heroTitle;
+      document.getElementById('hero-desc').innerText = texts[currentLanguage].heroDesc;
+      document.getElementById('submitBtn').innerText = texts[currentLanguage].analyzeButton;
+      document.getElementById('logInput').placeholder = texts[currentLanguage].placeholder;
+      document.getElementById('result').querySelector('h3').innerText = texts[currentLanguage].resultTitle;
+    }
+
+    btn.addEventListener('click', async () => {
+      const logs = input.value.trim();
+      if (!logs) {
+        alert('Please paste some logs first.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Analyzing...';
+      resultBox.style.display = 'block';
+      resultText.textContent = 'AI is analyzing your logs...';
+
+      try {
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ logs })
+        });
+
+        if (!res.ok) throw new Error('Request failed');
+        const data = await res.json();
+        resultText.textContent = data.result || 'No analysis returned.';
+      } catch (e) {
+        resultText.textContent = 'Error: Unable to analyze logs at the moment.';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Analyze Logs';
+      }
+    });
+  </script>
+</body>
+</html>
